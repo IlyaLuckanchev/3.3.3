@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <!-- Режим списка -->
+    <div th:unless="${isFormMode}">
+        <h1>User List</h1>
+        <a href="/user/add" class="btn btn-primary mb-3">Add User</a>
+        <table class="table">
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.surName}"></td>
+                <td>
+                    <a th:href="@{/user/edit/{id}(id=${user.id})}"
+                       class="btn btn-warning btn-sm">Edit</a>
+                    <a th:href="@{/user/delete/{id}(id=${user.id})}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Delete this user?')">Delete</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Режим формы редактирования -->
+    <div th:if="${isFormMode}" class="mt-4">
+        <h2 th:text="${user.id != null} ? 'Edit User' : 'Add User'"></h2>
+        <form th:action="${user.id != null} ? @{/user/edit/{id}(id=${user.id})} : @{/user/add}"
+              method="post">
+
+            <!-- Ключевое изменение - правильная привязка модели -->
+            <input type="hidden" name="id" th:value="${user.id}">
+
+            <div class="mb-3">
+                <label>First Name</label>
+                <input type="text" name="name"
+                       th:value="${user.name}"
+                       class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Last Name</label>
+                <input type="text" name="surName"
+                       th:value="${user.surName}"
+                       class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${user.id != null} ? 'Update' : 'Save'"></span>
+            </button>
+            <a href="/user" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -5,26 +5,33 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.repository.Role;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import ru.kata.spring.boot_security.demo.userDaoImpl.UserDAO;
+
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
 public class UserServiceImpl implements UserService {
-    private UserDAO userDao;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserDAO userDao;
+
     @Autowired
-    public UserServiceImpl(UserDAO userDao, UserRepository userRepository) {
-        this.userDao = userDao;
+    public UserServiceImpl(UserRepository userRepository, UserDAO userDao) {
         this.userRepository = userRepository;
+        this.userDao = userDao;
     }
+
 
     @Override
     public List<User> getUser() {
@@ -62,6 +69,7 @@ public class UserServiceImpl implements UserService {
                 mapRolesToAuthorities(user.getRoles()));
     }
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
+
 }

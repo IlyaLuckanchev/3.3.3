@@ -26,20 +26,20 @@ public class UserController {
         return "user";
     }
 
-    @GetMapping("/add")
+    @GetMapping("/admin/add")
     public String showAddForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("isFormMode", true);
         return "user";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/admin/add")
     public String addUser(@ModelAttribute("user") User user) {
         userService.addUser(user);
         return "redirect:/user";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/admin/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         User user = userService.getUserById(id);
         model.addAttribute("user", user);
@@ -47,13 +47,13 @@ public class UserController {
         return "user";
     }
 
-    @PostMapping("/edit/{id}")
+    @PostMapping("/admin/edit/{id}")
     public String updateUser(@PathVariable Long id, @ModelAttribute("user") User user) {
         userService.updateUser(user.getName(), user.getSurName(), id);
         return "redirect:/user";
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/admin/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return "redirect:/user";

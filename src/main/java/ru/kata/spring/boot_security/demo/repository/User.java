@@ -1,23 +1,23 @@
 package ru.kata.spring.boot_security.demo.repository;
 
-import org.springframework.stereotype.Component;
+import com.sun.istack.NotNull;
+
 import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
 @Table(name = "users")
-@Component
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @NotNull
     @Column(nullable = false)
     private String name;
-
+    @NotNull
     @Column(nullable = false)
     private String surName;
-
+    @NotNull
     @Column(nullable = false)
     private String password;
 

@@ -8,29 +8,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.repository.Role;
-import ru.kata.spring.boot_security.demo.repository.RoleRepository;
-import ru.kata.spring.boot_security.demo.repository.User;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-import javax.annotation.PostConstruct;
-import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final SuccessUserHandler successUserHandler;
     private final UserService userService;
-    private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
 
-    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserService userService, RoleRepository roleRepository, UserRepository userRepository) {
+
+    public WebSecurityConfig(SuccessUserHandler successUserHandler, UserService userService) {
         this.successUserHandler = successUserHandler;
         this.userService = userService;
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
     }
 
 
@@ -62,32 +52,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         authenticationProvider.setUserDetailsService(userService);
         return authenticationProvider;
     }
-    @PostConstruct
-    @Transactional
-    public void init() {
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-        if (adminRole == null) {
-            adminRole = new Role();
-            adminRole.setName("ROLE_ADMIN");
-            roleRepository.save(adminRole);
-        }
 
-        Role userRole = roleRepository.findByName("ROLE_USER");
-        if (userRole == null) {
-            userRole = new Role();
-            userRole.setName("ROLE_USER");
-            roleRepository.save(userRole);
-        }
-
-        User admin = userRepository.findByName("admin");
-        if (admin == null) {
-            admin = new User();
-            admin.setName("admin");
-            admin.setSurName("admin");
-            admin.setPassword(passwordEncoder().encode("admin"));
-            admin.setRoles(Set.of(adminRole, userRole));
-            userRepository.save(admin);
-        }
-    }
 
 }

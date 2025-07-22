@@ -7,8 +7,9 @@ import java.util.List;
 
 public interface UserService extends UserDetailsService {
     List<User> getUser();
-    void addUser(User user);
+    User addUser(User user);
     void deleteUser(Long id);
     void updateUser(String name, String surName, Long id);
     User getUserById(Long id);
+    User findByName(String name);
 }

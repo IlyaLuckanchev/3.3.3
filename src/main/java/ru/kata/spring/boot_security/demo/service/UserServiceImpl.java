@@ -10,49 +10,60 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.repository.Role;
 import ru.kata.spring.boot_security.demo.repository.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
-import ru.kata.spring.boot_security.demo.userDaoImpl.UserDAO;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final UserDAO userDao;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserDAO userDao) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userDao = userDao;
     }
-
 
     @Override
     public List<User> getUser() {
-        return userDao.getUser();
+        return userRepository.findAll();
     }
 
     @Override
     public void updateUser(String name, String surName, Long id) {
-        userDao.updateUser(name, surName, id);
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isEmpty()){
+            throw new IllegalStateException("Пользователь с Id : " +id + "не найден");
+        }
+        User user = optionalUser.get();
+        user.setName(name);
+        user.setSurName(surName);
+        userRepository.save(user);
     }
 
     @Override
     public void deleteUser(Long id) {
-        userDao.deleteUser(id);
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isEmpty()){
+            throw new IllegalStateException("Пользователь с Id : " +id + "не найден");
+        }
+        userRepository.deleteById(id);
     }
 
     @Override
-    public void addUser(User user) {
-        userDao.addUser(user);
+    public User addUser(User user) {
+        return userRepository.save(user);
     }
     @Override
     public User getUserById(Long id) {
-        return userDao.getUserById(id);
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isEmpty()){
+            throw new IllegalStateException("Пользователь с Id : " +id + "не найден");
+        }
+        return optionalUser.get();
     }
-
 
     @Override
     @Transactional
@@ -66,6 +77,10 @@ public class UserServiceImpl implements UserService {
     }
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    }
+    @Override
+    public User findByName(String name) {
+        return userRepository.findByName(name);
     }
 
 }

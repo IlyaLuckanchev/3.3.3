@@ -22,7 +22,6 @@ public class AddStarterUser {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     @PostConstruct
     @Transactional
     public void init() {
@@ -49,5 +48,6 @@ public class AddStarterUser {
             admin.setRoles(Set.of(adminRole, userRole));
             userRepository.save(admin);
         }
+
     }
 }

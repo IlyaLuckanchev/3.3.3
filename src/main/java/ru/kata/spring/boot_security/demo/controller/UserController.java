@@ -10,7 +10,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/")
 public class UserController {
 
     private final UserService userService;
@@ -22,7 +22,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
+    @GetMapping("/user")
     public String getAllUsers(Model model) {
         model.addAttribute("users", userService.getUser());
         model.addAttribute("isFormMode", false);

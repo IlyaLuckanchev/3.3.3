@@ -1,43 +1,106 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>User Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .role-checkbox {
-            margin-right: 10px;
+        .form-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-        .role-label {
-            margin-right: 15px;
+        .user-table {
+            margin-top: 20px;
+        }
+        .admin-actions {
+            white-space: nowrap;
+        }
+        .role-checkboxes {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .role-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
     </style>
 </head>
 <body>
-<div class="container mt-4">
-    <!-- Navigation for admin -->
-    <div sec:authorize="hasRole('ADMIN')" class="mb-4">
-        <a href="/user" class="btn btn-outline-primary">User List</a>
-        <a href="/logout" class="btn btn-outline-danger float-end">Logout</a>
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">User Management</a>
+            <div class="navbar-nav">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-link btn btn-link">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Форма добавления/редактирования -->
+    <div th:if="${isFormMode}" class="form-container">
+        <h2 th:text="${user.id == null} ? 'Add User' : 'Edit User'">Form</h2>
+        <form th:action="${user.id == null} ? @{/admin/add} : @{'/admin/edit/' + user.id}"
+              th:object="${user}" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+            </div>
+            <div class="mb-3">
+                <label for="surName" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="surName" th:field="*{surName}" required>
+            </div>
+            <div class="mb-3" th:if="${user.id == null}">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="mb-3">
+                <label class="form-label">Roles</label>
+                <div class="role-checkboxes">
+                    <div class="role-checkbox">
+                        <input type="checkbox" id="roleAdmin" name="roles" value="ROLE_ADMIN"
+                               th:checked="${user.roles} ? ${user.roles.?[name == 'ROLE_ADMIN'].size() > 0} : false">
+                        <label for="roleAdmin">ADMIN</label>
+                    </div>
+                    <div class="role-checkbox">
+                        <input type="checkbox" id="roleUser" name="roles" value="ROLE_USER"
+                               th:checked="${user.roles} ? ${user.roles.?[name == 'ROLE_USER'].size() > 0} : true">
+                        <label for="roleUser">USER</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${user.id == null} ? 'Add User' : 'Update User'">Submit</span>
+            </button>
+            <a th:href="@{/user}" class="btn btn-secondary">Cancel</a>
+        </form>
     </div>
 
-    <!-- Navigation for regular users -->
-    <div sec:authorize="hasRole('USER') && !hasRole('ADMIN')" class="mb-4">
-        <a href="/logout" class="btn btn-outline-danger float-end">Logout</a>
-    </div>
+    <!-- Таблица пользователей -->
+    <div th:unless="${isFormMode}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>User List</h2>
+            <a th:href="@{/admin/add}" class="btn btn-success" sec:authorize="hasRole('ADMIN')">Add New User</a>
+        </div>
 
-    <!-- List mode -->
-    <div th:unless="${isFormMode}" sec:authorize="hasRole('ADMIN')">
-        <h1>User List</h1>
-        <a href="/user/admin/add" class="btn btn-primary mb-3">Add User</a>
-        <table class="table table-striped">
-            <thead class="table-dark">
+        <table class="table table-striped user-table">
+            <thead>
             <tr>
                 <th>ID</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Roles</th>
-                <th>Actions</th>
+                <th sec:authorize="hasRole('ADMIN')" class="admin-actions">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -48,75 +111,13 @@
                 <td>
                     <span th:each="role : ${user.roles}" th:text="${role.name} + ' '"></span>
                 </td>
-                <td>
-                    <a th:href="@{/user/admin/edit/{id}(id=${user.id})}"
-                       class="btn btn-warning btn-sm">Edit</a>
-                    <a th:href="@{/user/admin/delete/{id}(id=${user.id})}"
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                <td sec:authorize="hasRole('ADMIN')" class="admin-actions">
+                    <a th:href="@{'/admin/edit/' + ${user.id}}" class="btn btn-sm btn-primary">Edit</a>
+                    <a th:href="@{'/admin/delete/' + ${user.id}}" class="btn btn-sm btn-danger">Delete</a>
                 </td>
             </tr>
             </tbody>
         </table>
-    </div>
-
-    <!-- User info for non-admin -->
-    <div th:unless="${isFormMode}" sec:authorize="hasRole('USER') && !hasRole('ADMIN')">
-        <h1>Your Profile</h1>
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title" th:text="${user.name + ' ' + user.surName}"></h5>
-                <p class="card-text">
-                    <strong>Roles:</strong>
-                    <span th:each="role : ${user.roles}" th:text="${role.name} + ' '"></span>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Form mode -->
-    <div th:if="${isFormMode}" sec:authorize="hasRole('ADMIN')" class="mt-4">
-        <h2 th:text="${user.id != null} ? 'Edit User' : 'Add User'"></h2>
-        <form th:action="${user.id != null} ? @{/user/admin/edit/{id}(id=${user.id})} : @{/user/admin/add}"
-              method="post">
-            <input type="hidden" name="id" th:value="${user.id}">
-
-            <div class="mb-3">
-                <label class="form-label">First Name</label>
-                <input type="text" name="name" th:value="${user.name}" class="form-control" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Last Name</label>
-                <input type="text" name="surName" th:value="${user.surName}" class="form-control" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control"
-                       th:required="${user.id == null}" placeholder="Enter password">
-                <small class="text-muted" th:if="${user.id != null}">Leave blank to keep current password</small>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Roles</label><br>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="roles" value="ROLE_ADMIN"
-                           th:checked="${user.roles.?[name == 'ROLE_ADMIN'].size() > 0}">
-                    <label class="form-check-label">ADMIN</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="roles" value="ROLE_USER"
-                           th:checked="${user.roles.?[name == 'ROLE_USER'].size() > 0} || ${user.id == null}">
-                    <label class="form-check-label">USER</label>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-                <span th:text="${user.id != null} ? 'Update' : 'Save'"></span>
-            </button>
-            <a href="/user" class="btn btn-secondary">Cancel</a>
-        </form>
     </div>
 </div>
 

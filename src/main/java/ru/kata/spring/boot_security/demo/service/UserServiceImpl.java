@@ -37,10 +37,7 @@ public class UserServiceImpl implements UserService {
         if(optionalUser.isEmpty()){
             throw new IllegalStateException("Пользователь с Id : " + user.getId() + "не найден");
         }
-        User resuser = optionalUser.get();
-        resuser.setName(user.getName());
-        resuser.setSurName(user.getSurName());
-        userRepository.save(resuser);
+        userRepository.save(user);
     }
 
     @Override

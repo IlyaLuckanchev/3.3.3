@@ -32,15 +32,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(String name, String surName, Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
+    public void updateUser(User user) {
+        Optional<User> optionalUser = userRepository.findById(user.getId());
         if(optionalUser.isEmpty()){
-            throw new IllegalStateException("Пользователь с Id : " +id + "не найден");
+            throw new IllegalStateException("Пользователь с Id : " + user.getId() + "не найден");
         }
-        User user = optionalUser.get();
-        user.setName(name);
-        user.setSurName(surName);
-        userRepository.save(user);
+        User resuser = optionalUser.get();
+        resuser.setName(user.getName());
+        resuser.setSurName(user.getSurName());
+        userRepository.save(resuser);
     }
 
     @Override

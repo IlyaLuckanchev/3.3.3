@@ -21,6 +21,7 @@
         }
         .role-checkboxes {
             display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             margin-bottom: 15px;
         }
@@ -60,25 +61,28 @@
                 <input type="text" class="form-control" id="surName" th:field="*{surName}" required>
             </div>
 
-            <!-- Поле пароля (только при создании) -->
-            <div class="mb-3" th:if="${user.id == null}">
+            <!-- Поле пароля -->
+            <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input type="password" class="form-control" id="password" name="password"
+                       th:required="${user.id == null}">
+                <small class="text-muted" th:if="${user.id != null}">Leave blank to keep current password</small>
             </div>
 
             <!-- Выбор ролей -->
             <div class="mb-3">
                 <label class="form-label">Roles</label>
                 <div class="role-checkboxes">
-                    <div class="role-checkbox">
-                        <input type="checkbox" id="roleAdmin" name="roleName" value="ROLE_ADMIN"
-                               th:checked="${user.roles} ? ${#lists.contains(user.roles.![name], 'ROLE_ADMIN')} : false">
-                        <label for="roleAdmin">ADMIN</label>
-                    </div>
-                    <div class="role-checkbox">
-                        <input type="checkbox" id="roleUser" name="roleName" value="ROLE_USER"
-                               th:checked="${user.roles} ? ${#lists.contains(user.roles.![name], 'ROLE_USER')} : true">
-                        <label for="roleUser">USER</label>
+                    <!-- Динамическая генерация ролей из базы данных -->
+                    <div th:each="role : ${allRoles}" class="role-checkbox">
+                        <input type="checkbox"
+                               th:id="'role_' + ${role.id}"
+                               name="roleNames"
+                               th:value="${role.name}"
+                               th:checked="${#lists.contains(user.roles.?[id == role.id], role)}">
+                        <label th:for="'role_' + ${role.id}"
+                               th:text="${#strings.replace(role.name, 'ROLE_', '')}">
+                        </label>
                     </div>
                 </div>
             </div>
@@ -114,7 +118,7 @@
                 <td th:text="${user.surName}"></td>
                 <td>
                     <span th:each="role, stat : ${user.roles}"
-                          th:text="${role.name.replace('ROLE_', '') + (stat.last ? '' : ', ')}"></span>
+                          th:text="${#strings.replace(role.name, 'ROLE_', '') + (stat.last ? '' : ', ')}"></span>
                 </td>
                 <td sec:authorize="hasRole('ADMIN')" class="admin-actions">
                     <a th:href="@{'/admin/edit/' + ${user.id}}" class="btn btn-sm btn-primary">Edit</a>

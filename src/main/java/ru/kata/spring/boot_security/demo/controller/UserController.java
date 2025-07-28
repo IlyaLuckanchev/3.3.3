@@ -42,14 +42,24 @@ public class UserController {
     public String showAddForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("isFormMode", true);
+        // Добавляем список всех ролей из базы данных
+        model.addAttribute("allRoles", roleRepository.findAll());
         return "user";
     }
 
     @PostMapping("/admin/add")
-    public String addUser(@ModelAttribute("user") User user, List<String> roleName) {
+    public String addUser(
+            @ModelAttribute("user") User user,
+            @RequestParam(value = "roleNames", required = false) List<String> roleNames) {
+
+        // Обработка случая, когда не выбрано ни одной роли
+        if (roleNames == null || roleNames.isEmpty()) {
+            roleNames = List.of("ROLE_USER");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Set<Role> roles = roleName.stream()
-                .map(name -> roleRepository.findByName(name))
+        Set<Role> roles = roleNames.stream()
+                .map(roleRepository::findByName)
                 .collect(Collectors.toSet());
         user.setRoles(roles);
         userService.addUser(user);
@@ -64,19 +74,38 @@ public class UserController {
         }
         model.addAttribute("user", user);
         model.addAttribute("isFormMode", true);
+        // Добавляем список всех ролей из базы данных
+        model.addAttribute("allRoles", roleRepository.findAll());
         return "user";
     }
 
     @PostMapping("/admin/edit/{id}")
-    public String updateUser(@PathVariable Long id, @ModelAttribute("user") User user, List<String> roleName) {
-        User findUser = userService.getUserById(id);
-        Set<Role> roles = roleName.stream()
-                .map(name -> roleRepository.findByName(name))
+    public String updateUser(
+            @PathVariable Long id,
+            @ModelAttribute("user") User user,
+            @RequestParam(value = "roleNames", required = false) List<String> roleNames) {
+
+        User existingUser = userService.getUserById(id);
+
+        // Обработка случая, когда не выбрано ни одной роли
+        if (roleNames == null || roleNames.isEmpty()) {
+            roleNames = List.of("ROLE_USER");
+        }
+
+        Set<Role> roles = roleNames.stream()
+                .map(roleRepository::findByName)
                 .collect(Collectors.toSet());
-        findUser.setRoles(roles);
-        findUser.setName(user.getName());
-        findUser.setSurName(user.getSurName());
-        userService.updateUser(findUser);
+
+        existingUser.setRoles(roles);
+        existingUser.setName(user.getName());
+        existingUser.setSurName(user.getSurName());
+
+        // Обновляем пароль только если он был изменен
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        userService.updateUser(existingUser);
         return "redirect:/user";
     }
 

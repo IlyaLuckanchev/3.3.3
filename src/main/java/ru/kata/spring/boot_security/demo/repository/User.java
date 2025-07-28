@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "users")
@@ -61,9 +62,9 @@ public class User {
         this.id = id;
     }
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER) // Важно: EAGER для загрузки ролей
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Collection<Role> roles;
+    private Collection<Role> roles = new HashSet<>();
 }

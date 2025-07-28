@@ -48,7 +48,10 @@
     <!-- Форма добавления/редактирования -->
     <div th:if="${isFormMode}" class="form-container">
         <h2 th:text="${user.id == null} ? 'Add User' : 'Edit User'">Form</h2>
-        <form th:action="${user.id == null} ? @{/admin/add} : @{'/admin/edit/' + user.id}"
+        <!-- Исправленный URL для редактирования -->
+        <form th:action="${user.id == null}
+                         ? @{/admin/add}
+                         : @{/admin/edit/{id}(id=${user.id})}"
               th:object="${user}" method="post">
             <input type="hidden" th:field="*{id}" th:if="${user.id != null}">
 
@@ -79,7 +82,7 @@
                                th:id="'role_' + ${role.id}"
                                name="roleNames"
                                th:value="${role.name}"
-                               th:checked="${#lists.contains(user.roles.![id], role.id)}"> <!-- Исправлено здесь -->
+                               th:checked="${#lists.contains(user.roles.![id], role.id)}">
                         <label th:for="'role_' + ${role.id}"
                                th:text="${#strings.replace(role.name, 'ROLE_', '')}">
                         </label>
@@ -121,6 +124,7 @@
                           th:text="${#strings.replace(role.name, 'ROLE_', '') + (stat.last ? '' : ', ')}"></span>
                 </td>
                 <td sec:authorize="hasRole('ADMIN')" class="admin-actions">
+                    <!-- Исправленный URL для редактирования в таблице -->
                     <a th:href="@{'/admin/edit/' + ${user.id}}" class="btn btn-sm btn-primary">Edit</a>
                     <a th:href="@{'/admin/delete/' + ${user.id}}"
                        class="btn btn-sm btn-danger"

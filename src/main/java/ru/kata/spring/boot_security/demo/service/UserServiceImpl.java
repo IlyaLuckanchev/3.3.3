@@ -34,18 +34,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
         Optional<User> optionalUser = userRepository.findById(user.getId());
-        if (optionalUser.isEmpty()) {
-            throw new IllegalStateException("Пользователь с Id : " + user.getId() + "не найден");
-        }
+        optionalUser.orElseThrow(() -> new IllegalStateException("Пользователь с Id : " + user.getId() + "не найден"));
         userRepository.save(user);
     }
 
     @Override
     public void deleteUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isEmpty()) {
-            throw new IllegalStateException("Пользователь с Id : " + id + "не найден");
-        }
+        optionalUser.orElseThrow(() -> new IllegalStateException("Пользователь с Id : " + id + "не найден"));
         userRepository.deleteById(id);
     }
 

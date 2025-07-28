@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
         Optional<User> optionalUser = userRepository.findById(user.getId());
-        if(optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new IllegalStateException("Пользователь с Id : " + user.getId() + "не найден");
         }
         userRepository.save(user);
@@ -43,8 +43,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isEmpty()){
-            throw new IllegalStateException("Пользователь с Id : " +id + "не найден");
+        if (optionalUser.isEmpty()) {
+            throw new IllegalStateException("Пользователь с Id : " + id + "не найден");
         }
         userRepository.deleteById(id);
     }
@@ -53,13 +53,11 @@ public class UserServiceImpl implements UserService {
     public User addUser(User user) {
         return userRepository.save(user);
     }
+
     @Override
     public User getUserById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isEmpty()){
-            throw new IllegalStateException("Пользователь с Id : " +id + "не найден");
-        }
-        optionalUser.get();
+        optionalUser.orElseThrow(() -> new IllegalStateException("Пользователь с Id : " + id + "не найден"));
         return optionalUser.get();
     }
 
@@ -67,15 +65,17 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         User user = userRepository.findByName(name);
-        if(user == null) {
+        if (user == null) {
             throw new UsernameNotFoundException(String.format("User '%s' not found", name));
         }
         return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(),
                 mapRolesToAuthorities(user.getRoles()));
     }
+
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
+
     @Override
     public User findByName(String name) {
         return userRepository.findByName(name);

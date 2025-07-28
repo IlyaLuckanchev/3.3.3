@@ -42,7 +42,6 @@ public class UserController {
     public String showAddForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("isFormMode", true);
-        // Добавляем список всех ролей из базы данных
         model.addAttribute("allRoles", roleRepository.findAll());
         return "user";
     }
@@ -51,8 +50,6 @@ public class UserController {
     public String addUser(
             @ModelAttribute("user") User user,
             @RequestParam(value = "roleNames", required = false) List<String> roleNames) {
-
-        // Обработка случая, когда не выбрано ни одной роли
         if (roleNames == null || roleNames.isEmpty()) {
             roleNames = List.of("ROLE_USER");
         }
@@ -74,7 +71,6 @@ public class UserController {
         }
         model.addAttribute("user", user);
         model.addAttribute("isFormMode", true);
-        // Добавляем список всех ролей из базы данных
         model.addAttribute("allRoles", roleRepository.findAll());
         return "user";
     }
@@ -86,8 +82,6 @@ public class UserController {
             @RequestParam(value = "roleNames", required = false) List<String> roleNames) {
 
         User existingUser = userService.getUserById(id);
-
-        // Обработка случая, когда не выбрано ни одной роли
         if (roleNames == null || roleNames.isEmpty()) {
             roleNames = List.of("ROLE_USER");
         }
@@ -100,7 +94,6 @@ public class UserController {
         existingUser.setName(user.getName());
         existingUser.setSurName(user.getSurName());
 
-        // Обновляем пароль только если он был изменен
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
         }

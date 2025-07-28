@@ -79,7 +79,7 @@
                                th:id="'role_' + ${role.id}"
                                name="roleNames"
                                th:value="${role.name}"
-                               th:checked="${#lists.contains(user.roles.?[id == role.id], role)}">
+                               th:checked="${#lists.contains(user.roles.![id], role.id)}"> <!-- Исправлено здесь -->
                         <label th:for="'role_' + ${role.id}"
                                th:text="${#strings.replace(role.name, 'ROLE_', '')}">
                         </label>

@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.repository;
+package ru.kata.spring.boot_security.demo.entity;
 
 import com.sun.istack.NotNull;
 
@@ -62,7 +62,7 @@ public class User {
         this.id = id;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER) // Важно: EAGER для загрузки ролей
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

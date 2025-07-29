@@ -2,13 +2,14 @@ package ru.kata.spring.boot_security.demo.configs;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.repository.Role;
-import ru.kata.spring.boot_security.demo.repository.RoleRepository;
-import ru.kata.spring.boot_security.demo.repository.User;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.entity.Role;
+import ru.kata.spring.boot_security.demo.entity.RoleRepository;
+import ru.kata.spring.boot_security.demo.entity.User;
+import ru.kata.spring.boot_security.demo.entity.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.PostConstruct;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -39,15 +40,13 @@ public class AddStarterUser {
             roleRepository.save(userRole);
         }
 
-        User admin = userRepository.findByName("admin");
-        if (admin == null) {
-            admin = new User();
-            admin.setName("admin");
-            admin.setSurName("admin");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setRoles(Set.of(adminRole, userRole));
-            userRepository.save(admin);
-        }
+        Optional<User> admin = userRepository.findByName("admin");
+            User admin1 = admin.orElse(new User());
+            admin1.setName("admin");
+            admin1.setSurName("admin");
+            admin1.setPassword(passwordEncoder.encode("admin"));
+            admin1.setRoles(Set.of(adminRole, userRole));
+            userRepository.save(admin1);
 
     }
 }

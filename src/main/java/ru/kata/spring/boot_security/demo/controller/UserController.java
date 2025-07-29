@@ -47,19 +47,20 @@ public class UserController {
     }
 
     @PostMapping("/admin/add")
-    public String addUser(
-            @ModelAttribute("user") User user,
-            @RequestParam(value = "roleNames", required = false) List<String> roleNames) {
+    public String addUser(@ModelAttribute("user") User user) {
+        List<String> roleNames = user.getRoleNames();
         if (roleNames == null || roleNames.isEmpty()) {
             roleNames = List.of("ROLE_USER");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Set<Role> roles = roleNames.stream()
                 .map(roleRepository::findByName)
                 .collect(Collectors.toSet());
+
         user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.addUser(user);
+
         return "redirect:/user";
     }
 
@@ -78,10 +79,11 @@ public class UserController {
     @PostMapping("/admin/edit/{id}")
     public String updateUser(
             @PathVariable Long id,
-            @ModelAttribute("user") User user,
-            @RequestParam(value = "roleNames", required = false) List<String> roleNames) {
+            @ModelAttribute("user") User user) {
 
         User existingUser = userService.getUserById(id);
+
+        List<String> roleNames = user.getRoleNames();
         if (roleNames == null || roleNames.isEmpty()) {
             roleNames = List.of("ROLE_USER");
         }

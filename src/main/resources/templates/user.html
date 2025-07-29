@@ -76,13 +76,11 @@
             <div class="mb-3">
                 <label class="form-label">Roles</label>
                 <div class="role-checkboxes">
-                    <!-- Динамическая генерация ролей из базы данных -->
                     <div th:each="role : ${allRoles}" class="role-checkbox">
                         <input type="checkbox"
                                th:id="'role_' + ${role.id}"
-                               name="roleNames"
-                               th:value="${role.name}"
-                               th:checked="${#lists.contains(user.roles.![id], role.id)}">
+                               th:field="*{roleNames}"
+                               th:value="${role.name}">
                         <label th:for="'role_' + ${role.id}"
                                th:text="${#strings.replace(role.name, 'ROLE_', '')}">
                         </label>

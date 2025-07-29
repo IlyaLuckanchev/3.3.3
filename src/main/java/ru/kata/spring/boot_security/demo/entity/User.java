@@ -5,6 +5,7 @@ import com.sun.istack.NotNull;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -21,6 +22,17 @@ public class User {
     @NotNull
     @Column(nullable = false)
     private String password;
+
+    @Transient
+    private List<String> roleNames;
+
+    public List<String> getRoleNames() {
+        return roleNames;
+    }
+
+    public void setRoleNames(List<String> roleNames) {
+        this.roleNames = roleNames;
+    }
 
     public String getPassword() {
         return password;

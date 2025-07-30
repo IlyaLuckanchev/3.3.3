@@ -1,6 +1,8 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,9 +35,23 @@ public class UserController {
 
     @GetMapping("/user")
     public String getAllUsers(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userService.findByName(currentUsername).orElse(null);
+
+        if (currentUser == null) {
+            return "redirect:/logout";
+        }
+
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("users", userService.getUser());
         model.addAttribute("isFormMode", false);
         return "user";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @GetMapping("/admin/add")

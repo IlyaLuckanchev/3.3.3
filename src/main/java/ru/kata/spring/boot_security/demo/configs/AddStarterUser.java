@@ -40,10 +40,12 @@ public class AddStarterUser {
             roleRepository.save(userRole);
         }
 
-        Optional<User> admin = userRepository.findByName("admin");
+        Optional<User> admin = userRepository.findByEmail("111@mail.ru");
             User admin1 = admin.orElse(new User());
             admin1.setName("admin");
             admin1.setSurName("admin");
+            admin1.setEmail("111@mail.ru");
+            admin1.setAge(25);
             admin1.setPassword(passwordEncoder.encode("admin"));
             admin1.setRoles(Set.of(adminRole, userRole));
             userRepository.save(admin1);

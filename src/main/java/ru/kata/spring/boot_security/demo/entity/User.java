@@ -22,12 +22,33 @@ public class User {
     @NotNull
     @Column(nullable = false)
     private String password;
+    @NotNull
+    @Column(nullable = false, unique = true) // Добавляем уникальность
+    private String email;
+    @NotNull
+    @Column(nullable = false)
+    private int Age;
 
     @Transient
     private List<String> roleNames;
 
     public List<String> getRoleNames() {
         return roleNames;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public int getAge() {
+        return Age;
+    }
+    public void setAge(int age) {
+        Age = age;
     }
 
     public void setRoleNames(List<String> roleNames) {

@@ -57,10 +57,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByName(name);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findByEmail(email);
         User user = userOptional.orElseThrow(() ->
-                new UsernameNotFoundException("Пользователь с именем '" + name + "' не найден")
+                new UsernameNotFoundException("Пользователь с именем '" + email + "' не найден")
         );
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
@@ -77,5 +77,4 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByName(String name) {
         return userRepository.findByName(name);
     }
-
 }

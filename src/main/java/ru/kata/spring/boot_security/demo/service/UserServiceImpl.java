@@ -50,9 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        optionalUser.orElseThrow(() -> new IllegalStateException("Пользователь с Id : " + id + "не найден"));
-        return optionalUser.get();
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -72,7 +70,10 @@ public class UserServiceImpl implements UserService {
                 authorities
         );
     }
-
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
     @Override
     public Optional<User> findByName(String name) {
         return userRepository.findByName(name);

@@ -27,7 +27,7 @@ public class User {
     private String email;
     @NotNull
     @Column(nullable = false)
-    private int Age;
+    private int age;
 
     @Transient
     private List<String> roleNames;
@@ -45,10 +45,10 @@ public class User {
     }
 
     public int getAge() {
-        return Age;
+        return age;
     }
     public void setAge(int age) {
-        Age = age;
+        age = age;
     }
 
     public void setRoleNames(List<String> roleNames) {

@@ -48,7 +48,7 @@ public class User {
         return age;
     }
     public void setAge(int age) {
-        age = age;
+        this.age = age;
     }
 
     public void setRoleNames(List<String> roleNames) {

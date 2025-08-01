@@ -111,6 +111,8 @@ public class UserController {
         existingUser.setRoles(roles);
         existingUser.setName(user.getName());
         existingUser.setSurName(user.getSurName());
+        existingUser.setAge(user.getAge());
+        existingUser.setEmail(user.getEmail());
 
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(user.getPassword()));

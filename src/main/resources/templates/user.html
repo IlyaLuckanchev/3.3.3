@@ -312,6 +312,7 @@
                     <div class="mb-4">
                         <label class="form-label required">Roles</label>
                         <div class="role-checkboxes">
+                            <!-- Динамическая генерация чекбоксов ролей -->
                             <div th:each="role : ${allRoles}" class="form-check role-checkbox">
                                 <input class="form-check-input edit-role" type="checkbox"
                                        th:id="'editRole_' + ${role.id}"
@@ -436,10 +437,20 @@
             document.getElementById('editAge').value = userAge;
             document.getElementById('editPassword').value = '';
 
+            // Обработка ролей пользователя
             const rolesArray = userRoles.split(',');
             const roleCheckboxes = editModal.querySelectorAll('.edit-role');
+
+            // Сначала снимаем все галочки
             roleCheckboxes.forEach(checkbox => {
-                checkbox.checked = rolesArray.includes(checkbox.value);
+                checkbox.checked = false;
+            });
+
+            // Затем отмечаем роли пользователя
+            roleCheckboxes.forEach(checkbox => {
+                if (rolesArray.includes(checkbox.value)) {
+                    checkbox.checked = true;
+                }
             });
 
             document.getElementById('editForm').action = `/admin/edit/${userId}`;

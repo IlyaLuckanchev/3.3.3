@@ -43,6 +43,7 @@ public class UserController {
             return "redirect:/logout";
         }
 
+        model.addAttribute("allRoles", roleRepository.findAll());
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("users", userService.getUser());
         model.addAttribute("isFormMode", false);

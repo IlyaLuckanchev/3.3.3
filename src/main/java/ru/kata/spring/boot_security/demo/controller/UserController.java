@@ -80,17 +80,6 @@ public class UserController {
         return "redirect:/user";
     }
 
-    @GetMapping("/admin/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        User user = userService.getUserById(id);
-        if (user == null) {
-            return "redirect:/user?error=user_not_found";
-        }
-        model.addAttribute("user", user);
-        model.addAttribute("isFormMode", true);
-        model.addAttribute("allRoles", roleRepository.findAll());
-        return "user";
-    }
 
     @PostMapping("/admin/edit/{id}")
     public String updateUser(

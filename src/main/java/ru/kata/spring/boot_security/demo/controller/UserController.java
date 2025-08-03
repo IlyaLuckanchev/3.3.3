@@ -50,6 +50,21 @@ public class UserController {
         return "user";
     }
 
+    @GetMapping("/useronly")
+    public String getUserOnly(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userService.findByName(currentUsername).orElse(null);
+
+        if (currentUser == null) {
+            return "redirect:/logout";
+        }
+
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("users", userService.getUser());
+        return "useronly";
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login";

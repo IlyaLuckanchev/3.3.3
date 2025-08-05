@@ -128,9 +128,8 @@
                         <td>
                             <div th:each="role : ${user.roles}">
                                 <!-- Исправленное выражение для классов -->
-                                <span th:classappend="'role-badge ' +
-                                          (${role.name} == 'ROLE_ADMIN' ? 'admin-badge' :
-                                          (${role.name} == 'ROLE_USER' ? 'user-badge' : 'other-badge'))"
+                                <span th:class="${role.name == 'ROLE_ADMIN'} ? 'role-badge admin-badge' :
+                (${role.name == 'ROLE_USER'} ? 'role-badge user-badge' : 'role-badge other-badge')"
                                       th:text="${#strings.replace(role.name, 'ROLE_', '')}">
                                     </span>
                             </div>

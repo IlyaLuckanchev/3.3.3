@@ -6,9 +6,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import ru.kata.spring.boot_security.demo.entity.Role;
-import ru.kata.spring.boot_security.demo.entity.RoleRepository;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -36,8 +40,8 @@ public class UserController {
     @GetMapping("/user")
     public String getAllUsers(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-        User currentUser = userService.findByName(currentUsername).orElse(null);
+        String email  = authentication.getName();
+        User currentUser = userService.findByEmail(email).orElse(null);
 
         if (currentUser == null) {
             return "redirect:/logout";
@@ -53,8 +57,8 @@ public class UserController {
     @GetMapping("/useronly")
     public String getUserOnly(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-        User currentUser = userService.findByName(currentUsername).orElse(null);
+        String email = authentication.getName();
+        User currentUser = userService.findByEmail(email).orElse(null);
 
         if (currentUser == null) {
             return "redirect:/logout";

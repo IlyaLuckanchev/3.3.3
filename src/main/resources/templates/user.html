@@ -215,8 +215,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="age" class="form-label required">Age</label>
                                         <input type="number" class="form-control" id="age"
-                                               name="age" min="1" required
-                                               th:value="${user.age != 0} ? ${user.age} : ''">
+                                               th:field="*{age}" min="1" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="email" class="form-label required">Email</label>

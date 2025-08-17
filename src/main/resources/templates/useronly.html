@@ -61,6 +61,19 @@
             background-color: #6c757d;
             color: white;
         }
+        .spinner-border {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            vertical-align: text-bottom;
+            border: .25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -93,8 +106,8 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">Users List</h4>
                 <div class="text-end">
-                    <span class="badge bg-light text-dark fs-6">
-                        Total: <span th:text="${users.size()}"></span> users
+                    <span class="badge bg-light text-dark fs-6" id="usersCount">
+                        Loading...
                     </span>
                 </div>
             </div>
@@ -113,25 +126,11 @@
                         <th>Roles</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr th:each="user, stat : ${users}">
-                        <td th:text="${stat.index + 1}"></td>
-                        <td>
-                            <span th:text="${user.name}"></span>
-                            <span th:if="${currentUser.id == user.id}" class="badge bg-primary ms-2">You</span>
-                        </td>
-                        <td th:text="${user.surName}"></td>
-                        <td th:text="${user.age}"></td>
-                        <td>
-                            <a th:href="'mailto:' + ${user.email}" th:text="${user.email}"></a>
-                        </td>
-                        <td>
-                            <div th:each="role : ${user.roles}">
-                                <!-- Исправленное выражение для классов -->
-                                <span th:class="${role.name == 'ROLE_ADMIN'} ? 'role-badge admin-badge' :
-                (${role.name == 'ROLE_USER'} ? 'role-badge user-badge' : 'role-badge other-badge')"
-                                      th:text="${#strings.replace(role.name, 'ROLE_', '')}">
-                                    </span>
+                    <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
                         </td>
                     </tr>
@@ -144,34 +143,10 @@
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0">Your Information</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <strong>First Name:</strong>
-                            <span th:text="${currentUser.name}"></span>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <strong>Last Name:</strong>
-                            <span th:text="${currentUser.surName}"></span>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <strong>Age:</strong>
-                            <span th:text="${currentUser.age}"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <strong>Email:</strong>
-                            <a th:href="'mailto:' + ${currentUser.email}" th:text="${currentUser.email}"></a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <strong>Roles:</strong>
-                            <span th:each="role, stat : ${currentUser.roles}">
-                                <span th:class="'badge ' +
-                                      (${role.name} == 'ROLE_ADMIN' ? 'bg-danger' :
-                                      (${role.name} == 'ROLE_USER' ? 'bg-success' : 'bg-secondary'))">
-                                    <span th:text="${#strings.replace(role.name, 'ROLE_', '')}"></span>
-                                </span>
-                                <span th:if="${!stat.last}">, </span>
-                            </span>
+                <div class="card-body" id="currentUserInfo">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
                 </div>
@@ -186,5 +161,115 @@
         <span>User Management System &copy; 2023 | Spring Security Application</span>
     </div>
 </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const currentUserInfo = document.getElementById('currentUserInfo');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const usersCount = document.getElementById('usersCount');
+
+        try {
+            // Загрузка текущего пользователя
+            const currentUserResponse = await fetch('/api/user/current');
+            if (!currentUserResponse.ok) throw new Error('Failed to load current user');
+
+            const currentUser = await currentUserResponse.json();
+
+            // Загрузка списка пользователей
+            const usersResponse = await fetch('/api/user/users');
+            if (!usersResponse.ok) throw new Error('Failed to load users list');
+
+            const users = await usersResponse.json();
+
+            // Отображение данных
+            renderCurrentUser(currentUser);
+            renderUsers(users, currentUser.id);
+            usersCount.textContent = `Total: ${users.length} users`;
+        } catch (error) {
+            console.error('Error loading data:', error);
+            currentUserInfo.innerHTML = `
+            <div class="alert alert-danger">
+                Error loading data: ${error.message}
+            </div>
+        `;
+            usersTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-danger">
+                    Error loading data
+                </td>
+            </tr>
+        `;
+            usersCount.textContent = 'Error loading count';
+        }
+
+        function renderCurrentUser(user) {
+            currentUserInfo.innerHTML = `
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <strong>First Name:</strong> ${user.name}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Last Name:</strong> ${user.surName}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <strong>Age:</strong> ${user.age}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Email:</strong>
+                    <a href="mailto:${user.email}">${user.email}</a>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Roles:</strong>
+                    ${user.roles.map(r =>
+                `<span class="badge ${r.name === 'ROLE_ADMIN' ? 'bg-danger' : 'bg-success'}">
+                            ${r.name.replace('ROLE_', '')}
+                        </span>`
+            ).join(' ')}
+                </div>
+            </div>
+        `;
+        }
+
+        function renderUsers(users, currentUserId) {
+            if (users.length === 0) {
+                usersTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center">No users found</td>
+                </tr>
+            `;
+                return;
+            }
+
+            let html = '';
+            users.forEach((user, index) => {
+                const rolesHtml = user.roles.map(r => {
+                    const roleName = r.name.replace('ROLE_', '');
+                    let badgeClass = 'other-badge';
+                    if (r.name === 'ROLE_ADMIN') badgeClass = 'admin-badge';
+                    if (r.name === 'ROLE_USER') badgeClass = 'user-badge';
+
+                    return `<span class="role-badge ${badgeClass}">${roleName}</span>`;
+                }).join('');
+
+                html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                        ${user.name}
+                        ${user.id === currentUserId ?
+                    '<span class="badge bg-primary ms-2">You</span>' : ''}
+                    </td>
+                    <td>${user.surName}</td>
+                    <td>${user.age}</td>
+                    <td><a href="mailto:${user.email}">${user.email}</a></td>
+                    <td>${rolesHtml}</td>
+                </tr>
+            `;
+            });
+
+            usersTableBody.innerHTML = html;
+        }
+    });
+</script>
 </body>
 </html>
